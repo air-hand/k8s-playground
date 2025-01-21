@@ -27,3 +27,7 @@ get-initial-passwd: set-context
 .PHONY: apply-argocd
 apply-argocd: set-context
 	kubectl apply -f argocd/application-set.yaml -n argocd
+
+.PHONY: argocd-login
+argocd-login:
+	argocd login localhost:8443
