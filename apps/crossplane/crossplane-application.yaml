@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crossplane
+  namespace: argocd
+#  annotations:
+#    argocd.argoproj.io/sync-options: |
+#      CreateNamespace=true
+spec:
+  project: default
+  source:
+    repoURL: "https://charts.crossplane.io/stable"
+    chart: "crossplane"
+    targetRevision: "1.12.1"
+    helm:
+      values: |
+        args:
+          - --debug
+        psp:
+          enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: crossplane-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

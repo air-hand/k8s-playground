@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: generated-appset
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: 'https://github.com/air-hand/kind-playground.git'
+      revision: main
+      directories:
+        - path: 'apps/*'
+  template:
+    metadata:
+      name: 'app-{{path.basename}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/air-hand/kind-playground.git'
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

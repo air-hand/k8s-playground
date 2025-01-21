@@ -20,7 +20,10 @@ port-forward: set-context
 	kubectl port-forward svc/argocd-server -n argocd 8443:443
 
 .PHONY: get-initial-passwd
-get-initial-passwd:
+get-initial-passwd: set-context
 	kubectl get secret argocd-initial-admin-secret -n argocd \
 		-o jsonpath="{.data.password}" | base64 -d
 
+.PHONY: apply-argocd
+apply-argocd: set-context
+	kubectl apply -f argocd/application-set.yaml -n argocd
