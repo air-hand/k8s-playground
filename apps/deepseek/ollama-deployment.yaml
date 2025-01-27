@@ -64,6 +64,8 @@ spec:
               done
               cat <<EOF | xargs -I{} -n 1 ollama pull {}
               deepseek-r1:7b
+              deepseek-r1:8b
+              deepseek-r1:14b
               deepseek-r1:32b
               EOF
               sleep infinity
