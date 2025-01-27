@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+# - https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.17.0/deployments/static/nvidia-device-plugin.yml
+ - device-plugin-daemonset.yaml
+ - nvidia-runtimeclass.yaml
+ - persistent-volume.yaml
+ - open-webui-deployment.yaml
+ - open-webui-service.yaml
+# - ollama-application.yaml
+ - ollama-deployment.yaml
+ - ollama-service.yaml
+transformers:
+  - |-
+    apiVersion: builtin
+    kind: NamespaceTransformer
+    metadata:
+      name: nst
+      namespace: deepseek
+    unsetOnly: true

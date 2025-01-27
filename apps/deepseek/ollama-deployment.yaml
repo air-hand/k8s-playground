@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - args: null
+          env:
+            - name: PATH
+              value: >-
+                /usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          envFrom: null
+          image: ollama/ollama:0.5.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: ollama
+          ports:
+            - containerPort: 11434
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - mountPath: /root/.ollama
+              name: ollama-data
+        - name: model-downloader
+          image: ollama/ollama:0.5.7
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -cx
+            - |
+              while ! ollama ps 2>&1 /dev/null; do
+                sleep 1
+              done
+              cat <<EOF | xargs -I{} -n 1 ollama pull {}
+              deepseek-r1:32b
+              deepseek-r1:7b
+              EOF
+              sleep infinity
+          env:
+            - name: OLLAMA_HOST
+              value: localhost
+          volumeMounts:
+            - mountPath: /root/.ollama
+              name: ollama-data
+      runtimeClassName: nvidia
+      volumes:
+        - name: ollama-data
+          persistentVolumeClaim:
+            claimName: deepseek-pvc

@@ -52,3 +52,6 @@ get-initial-passwd: set-context
 argocd-login:
 	argocd login 127.0.0.1:8443
 
+.PHONY: port-forward-open-webui
+port-forward-open-webui: set-context
+	kubectl port-forward --address 127.0.0.1 svc/open-webui -n deepseek 3000:8080
