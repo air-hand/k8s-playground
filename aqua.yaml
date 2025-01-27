@@ -18,3 +18,5 @@ packages:
 - name: kubernetes/kops@v1.30.3
 - name: ahmetb/kubectx/kubens@v0.9.5
 - name: knative/func@knative-v1.16.1
+- name: kubernetes/kubectl@v1.32.0
+- name: k3d-io/k3d@v5.8.1
