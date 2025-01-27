@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: deepseek-pv
+  name: ollama-model-pv
   labels:
-    volume: deepseek
+    volume: ollama-model
 spec:
   storageClassName: local
   accessModes:
@@ -12,19 +12,19 @@ spec:
   capacity:
     storage: 100Gi
   hostPath:
-    path: /mnt/data/volume
+    path: /mnt/data/volume-ollama
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: deepseek-pvc
+  name: ollama-model-pvc
 spec:
   storageClassName: local
   selector:
     matchLabels:
-      volume: deepseek
+      volume: ollama-model
   accessModes:
     - ReadWriteOnce
   resources:

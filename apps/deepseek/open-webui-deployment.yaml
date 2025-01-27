@@ -33,7 +33,5 @@ spec:
               name: open-webui-data
       volumes:
         - name: open-webui-data
-          emptyDir: {}
-#        - name: open-webui-pvc
-#          persistentVolumeClaim:
-#            claimName: open-webui-pvc
+          persistentVolumeClaim:
+            claimName: open-webui-pvc

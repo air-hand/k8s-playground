@@ -77,4 +77,4 @@ spec:
       volumes:
         - name: ollama-data
           persistentVolumeClaim:
-            claimName: deepseek-pvc
+            claimName: ollama-model-pvc

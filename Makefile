@@ -16,7 +16,10 @@ build-image:
 
 .PHONY: create-cluster
 create-cluster: build-image
-	k3d cluster create $(CLUSTER) --image $(K3D_IMAGE_TAG) --volume $(MAKEFILE_DIR)/volume:/mnt/data/volume --gpus=all --api-port 127.0.0.1:6550
+	mkdir -p $(MAKEFILE_DIR)/volume-ollama && mkdir -p $(MAKEFILE_DIR)/volume-webui
+	k3d cluster create $(CLUSTER) --image $(K3D_IMAGE_TAG) \
+		--volume $(MAKEFILE_DIR)/volume-ollama:/mnt/data/volume-ollama --volume $(MAKEFILE_DIR)/volume-webui:/mnt/data/volume-webui \
+		--gpus=all --api-port 127.0.0.1:6550
 	kubectl cluster-info
 
 .PHONY: delete-cluster
