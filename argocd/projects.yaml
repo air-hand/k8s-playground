@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: arc
+spec:
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - 'https://github.com/air-hand/k8s-playground.git'
+    - 'ghcr.io/actions/actions-runner-controller-charts'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
