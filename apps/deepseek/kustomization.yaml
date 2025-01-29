@@ -9,8 +9,8 @@ resources:
  - open-webui-service.yaml
 # - ollama-application.yaml
  - ollama-persistent-volume.yaml
- - ollama-deployment.yaml
- - ollama-service.yaml
+# - ollama-deployment.yaml
+# - ollama-service.yaml
 transformers:
   - |-
     apiVersion: builtin

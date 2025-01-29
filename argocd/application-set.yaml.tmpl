@@ -14,7 +14,8 @@ spec:
     metadata:
       name: 'app-{{path.basename}}'
     spec:
-      project: '{{path.basename}}'
+      #project: '{{path.basename}}'
+      project: default
       source:
         repoURL: 'https://github.com/air-hand/k8s-playground.git'
         targetRevision: $CURRENT_BRANCH
