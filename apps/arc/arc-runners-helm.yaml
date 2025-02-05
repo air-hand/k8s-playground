@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-runners
+  namespace: argocd
+spec:
+  project: arc
+  source:
+    repoURL: ghcr.io/actions/actions-runner-controller-charts
+    chart: gha-runner-scale-set
+    targetRevision: 0.8.3
+    helm:
+      values: |
+        githubConfigUrl: "https://github.com/air-hand/k8s-playground"
+        githubConfigSecret: gh-secret
+        runnerScaleSetName: "k8s-playground-runners"
+        controllerServiceAccount:
+          name: arc-controller-gha-rs-controller
+          namespace: arc-system
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arc-runners
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

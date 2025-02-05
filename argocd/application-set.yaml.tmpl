@@ -7,17 +7,18 @@ spec:
   generators:
   - git:
       repoURL: 'https://github.com/air-hand/k8s-playground.git'
-      revision: main
+      revision: $CURRENT_BRANCH
       directories:
         - path: 'apps/*'
   template:
     metadata:
       name: 'app-{{path.basename}}'
     spec:
+      #project: '{{path.basename}}'
       project: default
       source:
         repoURL: 'https://github.com/air-hand/k8s-playground.git'
-        targetRevision: main
+        targetRevision: $CURRENT_BRANCH
         path: '{{path}}'
       destination:
         server: 'https://kubernetes.default.svc'

@@ -3,3 +3,5 @@ kind: Kustomization
 resources:
   - crossplane-namespace.yaml
   - deepseek-namespace.yaml
+  - arc-namespace.yaml
+  - secret-operator-ns.yaml
