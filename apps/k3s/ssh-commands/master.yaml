@@ -1,0 +1,17 @@
+apiVersion: run.ssh.upbound.io/v1alpha1
+kind: Command
+metadata:
+  name: k3s-master-setup
+spec:
+  forProvider:
+    host: rasp-111
+    user: pi
+    environment:
+      - name: K3S_VERSION
+        valueFrom:
+          configMapKeyRef:
+            name: k3s-config
+            key: version
+    command: ${data.k3s-install-scripts.install-master\.sh}
+  providerConfigRef:
+    name: ssh-config

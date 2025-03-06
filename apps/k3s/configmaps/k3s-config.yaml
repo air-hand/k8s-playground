@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k3s-config
+  namespace: crossplane-system
+data:
+  version: "v1.32.2+k3s1"
