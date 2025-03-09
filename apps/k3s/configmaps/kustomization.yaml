@@ -6,7 +6,7 @@ configMapGenerator:
   - name: k3s-install-scripts
     namespace: crossplane-system
     files:
-      - install-master.sh=../scripts/install-master.sh
-      - install-worker.sh=../scripts/install-worker.sh
+      - install-master.sh=scripts/install-master.sh
+      - install-worker.sh=scripts/install-worker.sh
     options:
       disableNameSuffixHash: true
