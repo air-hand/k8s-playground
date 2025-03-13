@@ -3,7 +3,7 @@ kind: Provider
 metadata:
   name: provider-ansible
 spec:
-  package: "crossplane/provider-ansible:v0.6.0"
+  package: "xpkg.crossplane.io/crossplane-contrib/provider-ansible:v0.6.0"
 ---
 apiVersion: ansible.crossplane.io/v1alpha1
 kind: ProviderConfig
