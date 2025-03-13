@@ -6,3 +6,4 @@ resources:
   - provider-ssh.yaml
   - configmaps/
   - ssh-commands/
+  - ansible-commands/

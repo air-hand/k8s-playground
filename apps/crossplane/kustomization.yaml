@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - provider-aws.yaml
   - provider-k8s.yaml
+  - provider-ansible.yaml
 transformers:
   - |-
     apiVersion: builtin

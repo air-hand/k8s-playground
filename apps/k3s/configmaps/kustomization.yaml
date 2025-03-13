@@ -10,3 +10,11 @@ configMapGenerator:
       - install-worker.sh=scripts/install-worker.sh
     options:
       disableNameSuffixHash: true
+  - name: ansible-playbooks
+    namespace: crossplane-system
+    files:
+      - test-connection.yaml=ansible-playbooks/test-connection.yaml
+      - install-master.yaml=ansible-playbooks/install-master.yaml
+      - install-worker.yaml=ansible-playbooks/install-worker.yaml
+    options:
+      disableNameSuffixHash: true

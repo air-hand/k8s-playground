@@ -1,0 +1,22 @@
+apiVersion: ansible.crossplane.io/v1alpha1
+kind: Play
+metadata:
+  name: k3s-master-setup
+spec:
+  forProvider:
+    inventory:
+      hosts:
+        - name: rasp-111
+          vars:
+            ansible_host: 192.168.0.111
+            ansible_user: pi
+            ansible_ssh_private_key_file: /tmp/ansible-ssh-key
+            k3s_version: ${configmap:k3s-config:version}
+    playbook:
+      source: ConfigMap
+      configMapRef:
+        name: ansible-playbooks
+        namespace: crossplane-system
+        key: install-master.yaml
+  providerConfigRef:
+    name: ansible-provider-config

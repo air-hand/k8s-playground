@@ -1,0 +1,33 @@
+---
+- name: Install K3s Master
+  hosts: all
+  become: yes
+  vars:
+    k3s_version: "{{ k3s_version }}"
+  tasks:
+    - name: Install K3s master
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION={{ k3s_version }} sh -s - server \
+          --disable traefik \
+          --write-kubeconfig-mode 644
+      args:
+        creates: /var/lib/rancher/k3s/server/node-token
+    
+    - name: Wait for node-token
+      wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+        state: present
+        timeout: 300
+    
+    - name: Get node token
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: node_token
+    
+    - name: Set fact for node token
+      set_fact:
+        k3s_node_token: "{{ node_token.content | b64decode | trim }}"
+      
+    - name: Print completion message
+      debug:
+        msg: "K3s master node installation completed with version {{ k3s_version }}"
