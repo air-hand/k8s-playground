@@ -21,32 +21,10 @@ spec:
               path: /tmp/ansible-test-file
               state: touch
               mode: '0644'
-          
+
           - name: Write to test file
             copy:
               content: "Ansible test successful at {{ ansible_date_time.iso8601 }}"
               dest: /tmp/ansible-test-file
-  providerConfigRef:
-    name: ansible-provider-config
----
-apiVersion: ansible.crossplane.io/v1alpha1
-kind: Play
-metadata:
-  name: test-ssh-connection-worker
-spec:
-  forProvider:
-    inventory:
-      hosts:
-        - name: rasp-158
-          vars:
-            ansible_host: 192.168.0.158
-            ansible_user: pi
-            ansible_ssh_private_key_file: /tmp/ansible-ssh-key
-    playbook:
-      source: ConfigMap
-      configMapRef:
-        name: ansible-playbooks
-        namespace: crossplane-system
-        key: test-connection.yaml
   providerConfigRef:
     name: ansible-provider-config
