@@ -4,6 +4,12 @@ metadata:
   name: test-ssh-connection-master
 spec:
   forProvider:
+    inventories:
+      - secretRef:
+          key: hosts
+          name: inventory
+          namespace: k3s-setup
+        source: Secret
     inventoryInline:
       hosts:
         - name: rasp-111
