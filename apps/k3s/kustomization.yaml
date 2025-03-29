@@ -4,5 +4,5 @@ resources:
   - secret-store.yaml
   - ssh-external-secret.yaml
   - configmaps/
-  - ansible-commands/
+#  - ansible-commands/
   - ansible-jobs/
