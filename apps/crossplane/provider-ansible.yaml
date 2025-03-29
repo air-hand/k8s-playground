@@ -11,8 +11,8 @@ metadata:
   name: ansible-provider-config
 spec:
   credentials:
-    source: Secret
-    secretRef:
-      namespace: crossplane-system
-      name: raspberry-ssh
-      key: ssh-privatekey
+    - source: Secret
+      secretRef:
+        namespace: crossplane-system
+        name: raspberry-ssh
+        key: ssh-privatekey
