@@ -5,3 +5,4 @@ resources:
   - deepseek-namespace.yaml
   - arc-namespace.yaml
   - secret-operator-ns.yaml
+  - k3s-setup-namespace.yaml

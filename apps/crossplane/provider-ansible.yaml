@@ -1,0 +1,19 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-ansible
+spec:
+  package: "xpkg.upbound.io/crossplane-contrib/provider-ansible:v0.6.0"
+---
+apiVersion: ansible.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: ansible-provider-config
+spec:
+  credentials:
+    - filename: /tmp/ansible-ssh-key
+      source: Secret
+      secretRef:
+        namespace: crossplane-system
+        name: raspberry-ssh
+        key: ssh-privatekey

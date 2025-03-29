@@ -1,0 +1,60 @@
+apiVersion: ansible.crossplane.io/v1alpha1
+kind: AnsibleRun
+metadata:
+  name: argocd-setup
+  namespace: k3s-setup
+  annotations:
+    ansible.crossplane.io/runPolicy: ObserveAndDelete
+spec:
+  forProvider:
+    playbookInline: |
+      ---
+      - name: Install ArgoCD on K3s
+        hosts: all
+        become: yes
+        tasks:
+          - name: Create argocd namespace
+            shell: kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+            args:
+              executable: /bin/bash
+            
+          - name: Install ArgoCD
+            shell: |
+              kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+            args:
+              executable: /bin/bash
+            
+          - name: Wait for ArgoCD to be ready
+            shell: |
+              kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
+            args:
+              executable: /bin/bash
+            ignore_errors: yes
+          
+          - name: Get ArgoCD admin password
+            shell: |
+              kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+            args:
+              executable: /bin/bash
+            register: argocd_password
+            
+          - name: Set fact for ArgoCD password
+            set_fact:
+              argocd_admin_password: "{{ argocd_password.stdout }}"
+            
+          - name: Print ArgoCD installation information
+            debug:
+              msg: 
+                - "ArgoCD installation completed"
+                - "Admin username: admin"
+                - "Admin password: {{ argocd_admin_password }}"
+                - "Access ArgoCD UI by port-forwarding: kubectl port-forward svc/argocd-server -n argocd 8080:443"
+    inventories:
+      - hosts:
+          rasp-111:
+            ansible_host: 192.168.0.111
+            ansible_user: pi
+        secretRef:
+          namespace: crossplane-system
+  providerConfigRef:
+    name: ansible-provider-config
