@@ -30,15 +30,16 @@ spec:
           - name: Print completion message
             debug:
               msg: "K3s worker node installation completed with version {{ k3s_version }}"
-    inventory: |
-      all:
-        hosts:
+    inventories:
+      - hosts:
           rasp-158:
             ansible_host: 192.168.0.158
             ansible_user: pi
             k3s_version: "${configmap:k3s-config:version}"
             master_ip: "192.168.0.111"
             node_token: "${ansiblerun:k3s-master-setup:k3s_node_token}"
+        secretRef:
+          namespace: crossplane-system
   providerConfigRef:
     name: ansible-provider-config
   dependsOn:
