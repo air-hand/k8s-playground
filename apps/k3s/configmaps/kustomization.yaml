@@ -4,14 +4,14 @@ resources:
   - k3s-config.yaml
 configMapGenerator:
   - name: k3s-install-scripts
-    namespace: crossplane-system
+    namespace: k3s-setup
     files:
       - install-master.sh=scripts/install-master.sh
       - install-worker.sh=scripts/install-worker.sh
     options:
       disableNameSuffixHash: true
   - name: ansible-playbooks
-    namespace: crossplane-system
+    namespace: k3s-setup
     files:
       - test-connection.yaml=ansible-playbooks/test-connection.yaml
       - install-master.yaml=ansible-playbooks/install-master.yaml
