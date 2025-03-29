@@ -16,5 +16,6 @@ configMapGenerator:
       - test-connection.yaml=ansible-playbooks/test-connection.yaml
       - install-master.yaml=ansible-playbooks/install-master.yaml
       - install-worker.yaml=ansible-playbooks/install-worker.yaml
+      - install-argocd.yaml=ansible-playbooks/install-argocd.yaml
     options:
       disableNameSuffixHash: true

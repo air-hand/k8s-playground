@@ -4,3 +4,4 @@ resources:
   - test-connection.yaml
   - master.yaml
   - worker.yaml
+  - argocd.yaml
