@@ -4,9 +4,10 @@ metadata:
   name: k3s-worker-setup
   annotations:
     crossplane.io/external-name: k3s-worker-setup
+    ansible.crossplane.io/runPolicy: ObserveAndDelete
 spec:
   forProvider:
-    playbook: |
+    playbookInline: |
       ---
       - name: Install K3s Worker
         hosts: all

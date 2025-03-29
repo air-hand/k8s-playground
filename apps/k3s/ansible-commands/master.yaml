@@ -2,9 +2,11 @@ apiVersion: ansible.crossplane.io/v1alpha1
 kind: AnsibleRun
 metadata:
   name: k3s-master-setup
+  annotations:
+    ansible.crossplane.io/runPolicy: ObserveAndDelete
 spec:
   forProvider:
-    playbook: |
+    playbookInline: |
       ---
       - name: Install K3s Master
         hosts: all
