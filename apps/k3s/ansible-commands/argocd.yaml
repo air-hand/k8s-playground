@@ -49,11 +49,12 @@ spec:
                 - "Admin username: admin"
                 - "Admin password: {{ argocd_admin_password }}"
                 - "Access ArgoCD UI by port-forwarding: kubectl port-forward svc/argocd-server -n argocd 8080:443"
-    inventory: |
-      all:
-        hosts:
+    inventories:
+      - hosts:
           rasp-111:
             ansible_host: 192.168.0.111
             ansible_user: pi
+        secretRef:
+          namespace: crossplane-system
   providerConfigRef:
     name: ansible-provider-config

@@ -5,3 +5,4 @@ resources:
   - ssh-external-secret.yaml
   - configmaps/
   - ansible-commands/
+  - ansible-jobs/

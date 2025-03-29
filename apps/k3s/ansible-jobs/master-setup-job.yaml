@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k3s-master-setup-job
+  namespace: k3s-setup
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400  # 1日後に自動削除
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: ansible-runner
+        image: alpine/ansible:2.18.1
+        env:
+        - name: K3S_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: k3s-config
+              key: version
+              namespace: crossplane-system
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -ex
+          mkdir -p /ansible
+          cat > /ansible/hosts << EOF
+          [master]
+          rasp-111 ansible_host=192.168.0.111 ansible_user=pi k3s_version=${K3S_VERSION}
+          EOF
+
+          # SSHキーをセットアップ
+          mkdir -p /root/.ssh
+          cp /etc/ssh-key/ssh_private_key /root/.ssh/id_rsa
+          chmod 600 /root/.ssh/id_rsa
+          ssh-keyscan -H 192.168.0.111 >> /root/.ssh/known_hosts
+          
+          # Ansible Playbookを実行 (マウントされたプレイブックを使用)
+          cd /ansible
+          ansible-playbook -i hosts /playbooks/install-master.yaml
+          
+          # 結果の確認とノードトークンの保存
+          if [ -f /tmp/k3s-node-token ]; then
+            echo "Node token was successfully retrieved"
+            NODE_TOKEN=$(cat /tmp/k3s-node-token)
+            
+            # K8sシークレットとしてノードトークンを保存
+            cat <<EOFSECRET | kubectl apply -f -
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: k3s-node-token
+            namespace: k3s-setup
+          type: Opaque
+          data:
+            token: $(echo -n "$NODE_TOKEN" | base64 | tr -d '\n')
+          EOFSECRET
+          else
+            echo "Failed to retrieve node token"
+            exit 1
+          fi
+        volumeMounts:
+        - name: ssh-key
+          mountPath: /etc/ssh-key
+          readOnly: true
+        - name: ansible-playbooks
+          mountPath: /playbooks
+          readOnly: true
+      volumes:
+      - name: ssh-key
+        secret:
+          secretName: raspberry-ssh-key
+          optional: false
+      - name: ansible-playbooks
+        configMap:
+          name: ansible-playbooks
+          optional: false
