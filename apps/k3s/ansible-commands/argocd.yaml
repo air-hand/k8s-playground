@@ -2,6 +2,7 @@ apiVersion: ansible.crossplane.io/v1alpha1
 kind: AnsibleRun
 metadata:
   name: argocd-setup
+  namespace: k3s-setup
   annotations:
     ansible.crossplane.io/runPolicy: ObserveAndDelete
 spec:

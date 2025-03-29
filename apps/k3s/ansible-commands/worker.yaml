@@ -2,6 +2,7 @@ apiVersion: ansible.crossplane.io/v1alpha1
 kind: AnsibleRun
 metadata:
   name: k3s-worker-setup
+  namespace: k3s-setup
   annotations:
     crossplane.io/external-name: k3s-worker-setup
     ansible.crossplane.io/runPolicy: ObserveAndDelete
