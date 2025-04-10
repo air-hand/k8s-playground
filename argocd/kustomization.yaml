@@ -5,6 +5,8 @@ resources:
 - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 - application-set.yaml
 - projects.yaml
+patches:
+- path: argocd-cm-patches.yaml
 transformers:
 - |-
   apiVersion: builtin
