@@ -4,12 +4,20 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: "*/10 * * * *" # test for every 10 minutes
 
 permissions: {}
 
 jobs:
   hello-world:
     runs-on: k8s-playground-runners
+    strategy:
+      fail-fast: false
+      matrix:
+        input: [1, 2, 3, 4, 5]
     steps:
       - name: Hello world
-        run: echo "Hello world"
+        run: echo "Hello world ${INPUT}"
+        env:
+          INPUT: ${{ matrix.input }}
