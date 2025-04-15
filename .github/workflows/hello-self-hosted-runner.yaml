@@ -19,6 +19,8 @@ jobs:
         input: [1, 2, 3, 4, 5]
     steps:
       - name: Hello world
-        run: echo "Hello world ${INPUT}"
+        run: |
+          echo "Hello world ${INPUT}"
+          sleep 30s
         env:
           INPUT: ${{ matrix.input }}
