@@ -6,6 +6,7 @@ on:
       - main
   schedule:
     - cron: "*/10 * * * *" # test for every 10 minutes
+  workflow_dispatch:
 
 permissions: {}
 
