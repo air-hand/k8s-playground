@@ -5,7 +5,7 @@ on:
 #    branches:
 #      - main
   schedule:
-    - cron: "*/10 * * * *" # test for every 10 minutes
+    - cron: "5 */2 * * *"
   workflow_dispatch:
 
 permissions: {}
