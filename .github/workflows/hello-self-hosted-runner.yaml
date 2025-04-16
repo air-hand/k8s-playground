@@ -22,6 +22,6 @@ jobs:
       - name: Hello world
         run: |
           echo "Hello world ${INPUT}"
-          sleep 60s
+          sleep 50s
         env:
           INPUT: ${{ matrix.input }}
