@@ -4,8 +4,8 @@ on:
 #  pull_request:
 #    branches:
 #      - main
-#  schedule:
-#    - cron: "*/10 * * * *" # test for every 10 minutes
+  schedule:
+    - cron: "*/10 * * * *" # test for every 10 minutes
   workflow_dispatch:
 
 permissions: {}
@@ -17,11 +17,11 @@ jobs:
       fail-fast: false
       matrix:
 #        input: [1, 2, 3, 4, 5]
-        input: [1]
+        input: [1, 2]
     steps:
       - name: Hello world
         run: |
           echo "Hello world ${INPUT}"
-          sleep 30s
+          sleep 90s
         env:
           INPUT: ${{ matrix.input }}
