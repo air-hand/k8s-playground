@@ -23,6 +23,10 @@ spec:
           type: "dind"
         template:
           spec:
+            initContainers:
+              - name: sleep
+                image: busybox:stable
+                command: ["sh", "-c", "sleep 60"]
             containers:
               - name: runner
                 image: ghcr.io/actions/actions-runner:latest
