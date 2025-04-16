@@ -9,6 +9,8 @@ spec:
     repoURL: ghcr.io/actions/actions-runner-controller-charts
     chart: gha-runner-scale-set
     targetRevision: 0.11.0
+#    targetRevision: 0.10.1
+#    targetRevision: 0.8.3
     helm:
       values: |
         githubConfigUrl: "https://github.com/air-hand/k8s-playground"
@@ -17,6 +19,25 @@ spec:
         controllerServiceAccount:
           name: arc-controller-gha-rs-controller
           namespace: arc-system
+        containerMode:
+          type: "dind"
+        template:
+          spec:
+            initContainers:
+              - name: sleep
+                image: busybox:stable
+                command: ["sh", "-c", "set -- 90 120; SLEEP_SEC=$(eval echo \\${$((RANDOM%3+1))}; echo "Sleeping for $SLEEP_SEC seconds"; sleep $SLEEP_SEC"])"]
+            containers:
+              - name: runner
+                image: ghcr.io/actions/actions-runner:latest
+                command: ["/home/runner/run.sh"]
+                resources:
+                  requests:
+                    cpu: 500m
+                    memory: 2Gi
+                  limits:
+                    cpu: 500m
+                    memory: 2Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: arc-runners
