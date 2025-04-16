@@ -1,9 +1,9 @@
 name: "Hello self-hosted runner"
 
 on:
-  pull_request:
-    branches:
-      - main
+#  pull_request:
+#    branches:
+#      - main
 #  schedule:
 #    - cron: "*/10 * * * *" # test for every 10 minutes
   workflow_dispatch:
