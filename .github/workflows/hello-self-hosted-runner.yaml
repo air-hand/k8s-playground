@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-  schedule:
+#  schedule:
     - cron: "*/10 * * * *" # test for every 10 minutes
   workflow_dispatch:
 
@@ -16,7 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        input: [1, 2, 3, 4, 5]
+#        input: [1, 2, 3, 4, 5]
+        input: [1]
     steps:
       - name: Hello world
         run: |
