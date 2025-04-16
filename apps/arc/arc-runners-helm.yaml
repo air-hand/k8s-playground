@@ -26,7 +26,7 @@ spec:
             initContainers:
               - name: sleep
                 image: busybox:stable
-                command: ["sh", "-c", "set -- 90 120; SLEEP_SEC=$(eval echo \\${$((RANDOM%3+1))}; echo "Sleeping for $SLEEP_SEC seconds"; sleep $SLEEP_SEC"])"]
+                command: ["sh", "-c", "set -- 90 120; SLEEP_SEC=$(eval echo \\${$((RANDOM%2+1))}); echo \"Sleeping for $SLEEP_SEC seconds\"; sleep $SLEEP_SEC"]
             containers:
               - name: runner
                 image: ghcr.io/actions/actions-runner:latest
