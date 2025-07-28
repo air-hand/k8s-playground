@@ -1,11 +1,11 @@
 name: "Hello self-hosted runner"
 
 on:
-#  pull_request:
-#    branches:
-#      - main
-  schedule:
-    - cron: "5 */2 * * *"
+  pull_request:
+    branches:
+      - main
+#  schedule:
+#    - cron: "5 */2 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -25,3 +25,11 @@ jobs:
           sleep 90s
         env:
           INPUT: ${{ matrix.input }}
+      - name: install stress-ng
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y stress-ng
+      - name: stress-ng
+        run: |
+          # OOM killed with 1GB memory runner
+          stress-ng --vm 1 --vm-bytes 2148M --timeout 60s
