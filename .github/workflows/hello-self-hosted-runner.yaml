@@ -24,6 +24,26 @@ jobs:
           echo "Hello world ${INPUT}"
         env:
           INPUT: ${{ matrix.input }}
+      - name: debug memory limits
+        run: |
+          echo "=== System Info ==="
+          uname -a
+          echo "=== Memory Info ==="
+          free -h
+          echo "=== Swap Info ==="
+          cat /proc/swaps
+          echo "=== cgroup version ==="
+          if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+            echo "cgroup v2"
+            cat /sys/fs/cgroup/memory.max 2>/dev/null || echo "no memory.max"
+          else
+            echo "cgroup v1"
+            cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || echo "no limit file"
+          fi
+          echo "=== Process limits ==="
+          cat /proc/self/cgroup
+          echo "=== Container limits ==="
+          cat /proc/meminfo | grep -E "(MemTotal|MemAvailable)"
       - name: install stress-ng
         run: |
           sudo apt-get update
