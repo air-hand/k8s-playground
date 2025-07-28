@@ -52,3 +52,14 @@ jobs:
         run: |
           # OOM killed with 1GB memory runner
           stress-ng --vm 4 --vm-bytes 4192M --timeout 60s
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: oom
+        run: |
+          python3 -c "
+          data = bytearray(1300 * 1024 * 1024)  # 1.3GB一気に確保
+          print('Allocated 1.3GB')
+          import time
+          time.sleep(30)
+          " || echo "Python process was killed with exit code: $?"
