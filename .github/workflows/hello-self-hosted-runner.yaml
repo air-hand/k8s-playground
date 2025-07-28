@@ -66,4 +66,4 @@ jobs:
           time.sleep(30)
           " || echo "Python process was killed with exit code: $?"
       - name: test
-        run: echo "Hello world!!"
+        run: sleep 90; echo "Hello world!!"
