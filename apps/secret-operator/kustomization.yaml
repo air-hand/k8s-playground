@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - secret-operator-helm.yaml
   - secret-store.yaml
+  - awssm-secret.yaml
 transformers:
   - |-
     apiVersion: builtin
