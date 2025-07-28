@@ -32,6 +32,13 @@ spec:
                   limits:
                     cpu: 500m
                     memory: 1Gi
+            tolerations:
+              - key: "dedicated"
+                operator: "Equal"
+                value: "runner"
+                effect: "NoSchedule"
+            nodeSelector:
+              k3d-node-role: arc
   destination:
     server: https://kubernetes.default.svc
     namespace: arc-runners

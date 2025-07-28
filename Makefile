@@ -21,8 +21,11 @@ create-cluster: build-image
 		--volume $(MAKEFILE_DIR)/volume-ollama:/mnt/data/volume-ollama --volume $(MAKEFILE_DIR)/volume-webui:/mnt/data/volume-webui \
 		--gpus=all --api-port 127.0.0.1:6550 \
 		--k3s-arg "--kubelet-arg=fail-swap-on=true@server:*" \
-		--servers-memory 2g
+		--servers-memory 2g --agents-memory 2g
+	k3d node create arc --cluster $(CLUSTER) --role agent
 	kubectl cluster-info
+	kubectl label node k3d-arc-0 k3d-node-role=arc
+	kubectl taint node k3d-arc-0 dedicated=runner:NoSchedule
 
 .PHONY: delete-cluster
 delete-cluster:
