@@ -65,3 +65,5 @@ jobs:
           import time
           time.sleep(30)
           " || echo "Python process was killed with exit code: $?"
+      - name: test
+        run: Hello world!!
