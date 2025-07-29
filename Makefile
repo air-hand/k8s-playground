@@ -16,6 +16,8 @@ build-image:
 
 .PHONY: create-cluster
 create-cluster: build-image
+create-cluster: NODES := 3
+create-cluster:
 	mkdir -p $(MAKEFILE_DIR)/volume-ollama && mkdir -p $(MAKEFILE_DIR)/volume-webui
 	cgroup_driver=$$(docker info -f json | jq -r '.CgroupDriver')
 	k3d cluster create $(CLUSTER) --image $(K3D_IMAGE_TAG) \
@@ -24,10 +26,12 @@ create-cluster: build-image
 		--k3s-arg "--kubelet-arg=fail-swap-on=true@server:*" \
 		--k3s-arg "--kubelet-arg=cgroup-driver=$${cgroup_driver}@server:*" \
 		--servers-memory 2g --agents-memory 2g
-	k3d node create arc --cluster $(CLUSTER) --role agent
 	kubectl cluster-info
-	kubectl label node k3d-arc-0 k3d-node-role=arc
-	kubectl taint node k3d-arc-0 dedicated=runner:NoSchedule
+	k3d node create arc --cluster $(CLUSTER) --role agent --replicas $(NODES)
+	for i in $$(seq 0 $$(($(NODES) - 1))); do \
+		kubectl label node k3d-arc-$${i} k3d-node-role=arc; \
+		kubectl taint node k3d-arc-$${i} dedicated=runner:NoSchedule; \
+	done
 
 .PHONY: delete-cluster
 delete-cluster:
