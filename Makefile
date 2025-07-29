@@ -16,11 +16,24 @@ build-image:
 
 .PHONY: create-cluster
 create-cluster: build-image
+create-cluster: NODES := 1
+create-cluster:
 	mkdir -p $(MAKEFILE_DIR)/volume-ollama && mkdir -p $(MAKEFILE_DIR)/volume-webui
-	k3d cluster create $(CLUSTER) --image $(K3D_IMAGE_TAG) \
+	sudo rm -rf $(MAKEFILE_DIR)/k3d-data && mkdir -p $(MAKEFILE_DIR)/k3d-data
+	cgroup_driver=$$(docker info -f json | jq -r '.CgroupDriver')
+	k3d cluster create $(CLUSTER) --image $(K3D_IMAGE_TAG) --agents $(NODES) \
 		--volume $(MAKEFILE_DIR)/volume-ollama:/mnt/data/volume-ollama --volume $(MAKEFILE_DIR)/volume-webui:/mnt/data/volume-webui \
-		--gpus=all --api-port 127.0.0.1:6550
+		--volume $(MAKEFILE_DIR)/k3d-data/kubelet/server-0:/var/lib/kubelet@server:0 \
+		--volume $(MAKEFILE_DIR)/k3d-data/kubelet/arc-0:/var/lib/kubelet@agent:0 \
+		--gpus=all --api-port 127.0.0.1:6550 \
+		--k3s-arg "--kubelet-arg=fail-swap-on=true@server:*" \
+		--k3s-arg "--kubelet-arg=cgroup-driver=$${cgroup_driver}@server:*" \
+		--servers-memory 4g --agents-memory 2g
 	kubectl cluster-info
+	for i in $$(seq 0 $$(($(NODES) - 1))); do \
+		kubectl label node k3d-$(CLUSTER)-agent-$${i} k3d-node-role=arc; \
+		kubectl taint node k3d-$(CLUSTER)-agent-$${i} dedicated=runner:NoSchedule; \
+	done
 
 .PHONY: delete-cluster
 delete-cluster:

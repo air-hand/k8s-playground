@@ -1,11 +1,11 @@
 name: "Hello self-hosted runner"
 
 on:
-#  pull_request:
-#    branches:
-#      - main
-  schedule:
-    - cron: "5 */2 * * *"
+  pull_request:
+    branches:
+      - main
+#  schedule:
+#    - cron: "5 */2 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -22,6 +22,48 @@ jobs:
       - name: Hello world
         run: |
           echo "Hello world ${INPUT}"
-          sleep 90s
         env:
           INPUT: ${{ matrix.input }}
+      - name: debug memory limits
+        run: |
+          echo "=== System Info ==="
+          uname -a
+          echo "=== Memory Info ==="
+          free -h
+          echo "=== Swap Info ==="
+          cat /proc/swaps
+          echo "=== cgroup version ==="
+          if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+            echo "cgroup v2"
+            cat /sys/fs/cgroup/memory.max 2>/dev/null || echo "no memory.max"
+          else
+            echo "cgroup v1"
+            cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || echo "no limit file"
+          fi
+          echo "=== Process limits ==="
+          cat /proc/self/cgroup
+          echo "=== Container limits ==="
+          cat /proc/meminfo | grep -E "(MemTotal|MemAvailable)"
+      #- name: install stress-ng
+      #  run: |
+      #    sudo apt-get update
+      #    sudo apt-get install -y stress-ng
+      #- name: stress-ng
+      #  run: |
+      #    # OOM killed with 1GB memory runner
+      #    stress-ng --vm 4 --vm-bytes 4192M --timeout 60s
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: oom
+        run: |
+          python3 -c "
+          import gc
+          gc.disable()
+          data = bytearray(2300 * 1024 * 1024)  # 1.3GB一気に確保
+          print('Allocated 2.3GB')
+          import time
+          time.sleep(30)
+          " || echo "Python process was killed with exit code: $?"
+      - name: test
+        run: sleep 90; echo "Hello world!!"
