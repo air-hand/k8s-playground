@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: argocd-setup-job
+  namespace: k3s-setup
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400  # 1日後に自動削除
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-worker-job
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for worker setup job to complete..."
+          until kubectl get job k3s-worker-setup-job -n k3s-setup -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep -q True; do
+            echo "Worker job still running, waiting..."
+            sleep 10
+          done
+          echo "Worker setup job completed successfully"
+      containers:
+      - name: ansible-runner
+        image: alpine/ansible:2.18.1
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -ex
+          mkdir -p /ansible
+          cat > /ansible/hosts << EOF
+          [master]
+          rasp-111 ansible_host=192.168.0.111 ansible_user=pi
+          EOF
+
+          # SSHキーをセットアップ
+          mkdir -p /root/.ssh
+          cp /etc/ssh-key/ssh_private_key /root/.ssh/id_rsa
+          chmod 600 /root/.ssh/id_rsa
+          ssh-keyscan -H 192.168.0.111 >> /root/.ssh/known_hosts
+          
+          # Ansible Playbookを実行 (マウントされたプレイブックを使用)
+          cd /ansible
+          ansible-playbook -i hosts /playbooks/install-argocd.yaml
+          
+          # 結果の確認とパスワードの保存
+          if [ -f /tmp/argocd-password ]; then
+            echo "ArgoCD password was successfully retrieved"
+            ARGOCD_PASSWORD=$(cat /tmp/argocd-password)
+            
+            # K8sシークレットとしてパスワードを保存
+            cat <<EOFSECRET | kubectl apply -f -
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: argocd-initial-password
+            namespace: k3s-setup
+          type: Opaque
+          data:
+            password: $(echo -n "$ARGOCD_PASSWORD" | base64 | tr -d '\n')
+          EOFSECRET
+          else
+            echo "Failed to retrieve ArgoCD password"
+            exit 1
+          fi
+        volumeMounts:
+        - name: ssh-key
+          mountPath: /etc/ssh-key
+          readOnly: true
+        - name: ansible-playbooks
+          mountPath: /playbooks
+          readOnly: true
+      volumes:
+      - name: ssh-key
+        secret:
+          secretName: raspberry-ssh-key
+          optional: false
+      - name: ansible-playbooks
+        configMap:
+          name: ansible-playbooks
+          optional: false

@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - k3s-config.yaml
+configMapGenerator:
+  - name: k3s-install-scripts
+    namespace: k3s-setup
+    files:
+      - install-master.sh=scripts/install-master.sh
+      - install-worker.sh=scripts/install-worker.sh
+    options:
+      disableNameSuffixHash: true
+  - name: ansible-playbooks
+    namespace: k3s-setup
+    files:
+      - test-connection.yaml=ansible-playbooks/test-connection.yaml
+      - install-master.yaml=ansible-playbooks/install-master.yaml
+      - install-worker.yaml=ansible-playbooks/install-worker.yaml
+      - install-argocd.yaml=ansible-playbooks/install-argocd.yaml
+    options:
+      disableNameSuffixHash: true

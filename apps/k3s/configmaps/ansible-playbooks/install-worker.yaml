@@ -1,0 +1,21 @@
+---
+- name: Install K3s Worker
+  hosts: all
+  become: yes
+  vars:
+    k3s_version: "{{ k3s_version }}"
+    master_ip: "{{ master_ip }}"
+    node_token: "{{ node_token }}"
+  tasks:
+    - name: Install K3s worker
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION={{ k3s_version }} \
+          K3S_URL=https://{{ master_ip }}:6443 \
+          K3S_TOKEN={{ node_token }} \
+          sh -
+      args:
+        creates: /var/lib/rancher/k3s/agent/kubelet.kubeconfig
+    
+    - name: Print completion message
+      debug:
+        msg: "K3s worker node installation completed with version {{ k3s_version }}"

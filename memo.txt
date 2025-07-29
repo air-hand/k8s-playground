@@ -1,0 +1,3 @@
+* crossplaneでk8s clusterをラズパイに立てる
+* ラズパイにtailscaleを入れる
+* できればラズパイにArgoCDを乗せ換える

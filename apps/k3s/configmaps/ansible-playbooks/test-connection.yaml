@@ -1,0 +1,15 @@
+---
+- name: Test SSH connection
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create a test file
+      file:
+        path: /tmp/ansible-test-file
+        state: touch
+        mode: '0644'
+    
+    - name: Write to test file
+      copy:
+        content: "Ansible test successful at {{ ansible_date_time.iso8601 }}"
+        dest: /tmp/ansible-test-file

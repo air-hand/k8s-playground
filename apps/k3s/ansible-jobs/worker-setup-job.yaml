@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k3s-worker-setup-job
+  namespace: k3s-setup
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400  # 1日後に自動削除
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-master-job
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for master setup job to complete..."
+          until kubectl get job k3s-master-setup-job -n k3s-setup -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep -q True; do
+            echo "Master job still running, waiting..."
+            sleep 10
+          done
+          echo "Master setup job completed successfully"
+      containers:
+      - name: ansible-runner
+        image: alpine/ansible:2.18.1
+        env:
+        - name: K3S_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: k3s-config
+              key: version
+              namespace: crossplane-system
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -ex
+          # ノードトークンを取得
+          NODE_TOKEN=$(kubectl get secret k3s-node-token -n k3s-setup -o jsonpath='{.data.token}' | base64 -d)
+          if [ -z "$NODE_TOKEN" ]; then
+            echo "Failed to retrieve node token from secret"
+            exit 1
+          fi
+          
+          mkdir -p /ansible
+          cat > /ansible/hosts << EOF
+          [worker]
+          rasp-158 ansible_host=192.168.0.158 ansible_user=pi k3s_version=${K3S_VERSION} master_ip=192.168.0.111 node_token=${NODE_TOKEN}
+          EOF
+
+          # SSHキーをセットアップ
+          mkdir -p /root/.ssh
+          cp /etc/ssh-key/ssh_private_key /root/.ssh/id_rsa
+          chmod 600 /root/.ssh/id_rsa
+          ssh-keyscan -H 192.168.0.158 >> /root/.ssh/known_hosts
+          
+          # Ansible Playbookを実行 (マウントされたプレイブックを使用)
+          cd /ansible
+          ansible-playbook -i hosts /playbooks/install-worker.yaml
+        volumeMounts:
+        - name: ssh-key
+          mountPath: /etc/ssh-key
+          readOnly: true
+        - name: ansible-playbooks
+          mountPath: /playbooks
+          readOnly: true
+      volumes:
+      - name: ssh-key
+        secret:
+          secretName: raspberry-ssh-key
+          optional: false
+      - name: ansible-playbooks
+        configMap:
+          name: ansible-playbooks
+          optional: false
