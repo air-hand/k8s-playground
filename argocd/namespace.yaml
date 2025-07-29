@@ -2,3 +2,28 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: argocd
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arc-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arc-runners
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crossplane-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: deepseek
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: secret-operator
