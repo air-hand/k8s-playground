@@ -1,0 +1,14 @@
+name: "Another workflow"
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  sleep:
+    runs-on: k8s-playground-runners
+    steps:
+      - name: sleep
+        run: |
+          sleep 30s
