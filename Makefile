@@ -25,7 +25,7 @@ create-cluster:
 		--gpus=all --api-port 127.0.0.1:6550 \
 		--k3s-arg "--kubelet-arg=fail-swap-on=true@server:*" \
 		--k3s-arg "--kubelet-arg=cgroup-driver=$${cgroup_driver}@server:*" \
-		--servers-memory 2g --agents-memory 2g
+		--servers-memory 4g --agents-memory 2g
 	kubectl cluster-info
 	k3d node create arc --cluster $(CLUSTER) --role agent --replicas $(NODES)
 	for i in $$(seq 0 $$(($(NODES) - 1))); do \
