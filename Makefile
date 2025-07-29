@@ -16,7 +16,7 @@ build-image:
 
 .PHONY: create-cluster
 create-cluster: build-image
-create-cluster: NODES := 3
+create-cluster: NODES := 1
 create-cluster:
 	mkdir -p $(MAKEFILE_DIR)/volume-ollama && mkdir -p $(MAKEFILE_DIR)/volume-webui
 	cgroup_driver=$$(docker info -f json | jq -r '.CgroupDriver')
