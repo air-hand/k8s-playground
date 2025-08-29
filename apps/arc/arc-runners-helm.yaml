@@ -50,6 +50,28 @@ spec:
                   name: dind-etc
                 - mountPath: /dind-home
                   name: dind-home
+            containers:
+            - name: runner
+              image: ghcr.io/actions/actions-runner:latest
+              command: ["/home/runner/run.sh"]
+              env:
+                - name: DOCKER_HOST
+                  value: unix:///run/user/1001/docker.sock
+              securityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+              volumeMounts:
+                - name: work
+                  mountPath: /home/runner/_work
+                - name: dind-sock
+                  mountPath: /run/user/1001
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 1500m
+                limits:
+                  cpu: 500m
+                  memory: 1500m
             - name: dind
               image: docker:dind-rootless
               args:
@@ -79,28 +101,6 @@ spec:
                   mountPath: /etc
                 - name: dind-home
                   mountPath: /home/runner
-            containers:
-            - name: runner
-              image: ghcr.io/actions/actions-runner:latest
-              command: ["/home/runner/run.sh"]
-              env:
-                - name: DOCKER_HOST
-                  value: unix:///run/user/1001/docker.sock
-              securityContext:
-                runAsUser: 1001
-                runAsGroup: 1001
-              volumeMounts:
-                - name: work
-                  mountPath: /home/runner/_work
-                - name: dind-sock
-                  mountPath: /run/user/1001
-              resources:
-                requests:
-                  cpu: 500m
-                  memory: 1500m
-                limits:
-                  cpu: 500m
-                  memory: 1500m
             volumes:
             - name: work
               emptyDir: {}
