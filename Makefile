@@ -54,7 +54,7 @@ set-context:
 .PHONY: apply-argocd
 apply-argocd: set-context
 	CURRENT_BRANCH=$$(git branch --show-current) envsubst < ./argocd/application-set.yaml.tmpl > ./argocd/application-set.yaml && \
-	kubectl apply -k ./argocd
+	kubectl apply -k ./argocd && kubectl apply -f ./apps/secret-operator/awssm-secret.yaml
 
 .PHONY: port-forward-argocd
 port-forward-argocd: set-context
