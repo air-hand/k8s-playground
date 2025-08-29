@@ -74,11 +74,14 @@ spec:
                   memory: 1500m
             - name: dind
               image: docker:dind-rootless
-              args:
-                - dockerd
-                - --host=unix:///run/user/1001/docker.sock
+              env:
+                - name: DOCKER_HOST
+                  value: unix:///run/user/1001/docker.sock
+              # args:
+              #   - dockerd
+              #   - --host=unix:///run/user/1001/docker.sock
               securityContext:
-                privileged: true
+                # privileged: true
                 runAsUser: 1001
                 runAsGroup: 1001
               startupProbe:
