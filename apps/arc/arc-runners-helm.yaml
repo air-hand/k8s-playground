@@ -70,10 +70,10 @@ spec:
               resources:
                 requests:
                   cpu: 500m
-                  memory: 1500m
+                  memory: 500m
                 limits:
                   cpu: 500m
-                  memory: 1500m
+                  memory: 500m
             - name: dind
               image: docker:dind-rootless
               env:
@@ -94,6 +94,13 @@ spec:
                 initialDelaySeconds: 0
                 failureThreshold: 24
                 periodSeconds: 5
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 1500m
+                limits:
+                  cpu: 500m
+                  memory: 1500m
               volumeMounts:
                 - name: work
                   mountPath: /home/runner/_work
