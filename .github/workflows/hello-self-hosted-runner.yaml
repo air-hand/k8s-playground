@@ -11,7 +11,17 @@ on:
 permissions: {}
 
 jobs:
+  docker:
+    runs-on: k8s-playground-runners
+    steps:
+      - name: Check Docker version
+        run: docker --version
+      - name: Run Docker container
+        run: |
+          docker run --rm hello-world
+
   hello-world:
+    if: false
     runs-on: k8s-playground-runners
     strategy:
       fail-fast: false
