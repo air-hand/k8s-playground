@@ -21,6 +21,9 @@ jobs:
       - name: Run Docker container
         run: |
           docker run --rm hello-world
+      - name: Inspect docker network
+        run: |
+          docker network ls
 
   hello-world:
     if: false
