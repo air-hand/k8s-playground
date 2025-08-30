@@ -79,9 +79,8 @@ spec:
               env:
                 - name: DOCKER_HOST
                   value: unix:///run/user/1001/docker.sock
-              # args:
-              #   - dockerd
-              #   - --host=unix:///run/user/1001/docker.sock
+              args:
+                - dockerd
               securityContext:
                 # privileged: true
                 runAsUser: 1001
