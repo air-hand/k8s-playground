@@ -15,7 +15,9 @@ jobs:
     runs-on: k8s-playground-runners
     steps:
       - name: Check Docker version
-        run: docker --version
+        run: |
+          docker --version
+          ls -lha /run/user/1001/
       - name: Run Docker container
         run: |
           docker run --rm hello-world
