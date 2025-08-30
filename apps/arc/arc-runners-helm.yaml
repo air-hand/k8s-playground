@@ -85,6 +85,8 @@ spec:
                 privileged: true
                 runAsUser: 1001
                 runAsGroup: 1001
+                capabilities:
+                  drop: ["all"]
               startupProbe:
                 exec:
                   command:
