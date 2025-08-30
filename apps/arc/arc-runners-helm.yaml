@@ -3,14 +3,14 @@ kind: Application
 metadata:
   name: arc-runners
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: arc
   source:
     repoURL: ghcr.io/actions/actions-runner-controller-charts
     chart: gha-runner-scale-set
-    targetRevision: 0.11.0
-#    targetRevision: 0.10.1
-#    targetRevision: 0.8.3
+    targetRevision: 0.12.1
     helm:
       values: |
         githubConfigUrl: "https://github.com/air-hand/k8s-playground"
@@ -19,27 +19,118 @@ spec:
         controllerServiceAccount:
           name: arc-controller-gha-rs-controller
           namespace: arc-system
-        containerMode:
-          type: "dind"
         template:
           spec:
             initContainers:
-              - name: sleep
-                image: busybox:stable
-                #command: ["sh", "-c", "set -- 90 120; SLEEP_SEC=$(eval echo \\${$((RANDOM%2+1))}); echo \"Sleeping for $SLEEP_SEC seconds\"; sleep $SLEEP_SEC"]
-                command: ["sh", "-c", "set -- 1 120; SLEEP_SEC=$(eval echo \\${$((RANDOM%2+1))}); echo \"Sleeping for $SLEEP_SEC seconds\"; sleep $SLEEP_SEC"]
-                #command: ["sh", "-c", "sleep 120"]
+            - name: init-dind-externals
+              image: ghcr.io/actions/actions-runner:latest
+              command: ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+              volumeMounts:
+                - name: dind-externals
+                  mountPath: /home/runner/tmpDir
+            - name: init-dind-rootless
+              image: docker:dind-rootless
+              command:
+                - sh
+                - -c
+                - |
+                  set -x
+                  cp -a /etc/. /dind-etc/
+                  echo 'runner:x:1001:1001:runner:/home/runner:/bin/ash' >> /dind-etc/passwd
+                  echo 'runner:x:1001:' >> /dind-etc/group
+                  echo 'runner:100000:65536' >> /dind-etc/subgid
+                  echo 'runner:100000:65536' >> /dind-etc/subuid
+                  chmod 755 /dind-etc;
+                  chmod u=rwx,g=rx+s,o=rx /dind-home
+                  chown 1001:1001 /dind-home
+              securityContext:
+                runAsUser: 0
+              volumeMounts:
+                - mountPath: /dind-etc
+                  name: dind-etc
+                - mountPath: /dind-home
+                  name: dind-home
             containers:
-              - name: runner
-                image: ghcr.io/actions/actions-runner:latest
-                command: ["/home/runner/run.sh"]
-                resources:
-                  requests:
-                    cpu: 500m
-                    memory: 2Gi
-                  limits:
-                    cpu: 500m
-                    memory: 2Gi
+            - name: runner
+              image: ghcr.io/actions/actions-runner:latest
+              command: ["/home/runner/run.sh"]
+              env:
+                - name: DOCKER_HOST
+                  value: unix:///run/user/1001/docker.sock
+              securityContext:
+                runAsUser: 1001
+                runAsGroup: 1001
+              volumeMounts:
+                - name: work
+                  mountPath: /home/runner/_work
+                - name: dind-sock
+                  mountPath: /run/user/1001
+                - name: dind-externals
+                  mountPath: /home/runner/externals
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 500Mi
+                limits:
+                  cpu: 500m
+                  memory: 500Mi
+            - name: dind
+              image: docker:dind-rootless
+              env:
+                - name: DOCKER_HOST
+                  value: unix:///run/user/1001/docker.sock
+              args:
+                - dockerd
+              securityContext:
+                privileged: true
+                runAsUser: 1001
+                runAsGroup: 1001
+                capabilities:
+                  drop: ["all"]
+              startupProbe:
+                exec:
+                  command:
+                    - docker
+                    - info
+                initialDelaySeconds: 0
+                failureThreshold: 24
+                periodSeconds: 5
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 1000Mi
+                limits:
+                  cpu: 500m
+                  memory: 1000Mi
+              volumeMounts:
+                - name: work
+                  mountPath: /home/runner/_work
+                - name: dind-sock
+                  mountPath: /run/user/1001
+                - name: dind-externals
+                  mountPath: /home/runner/externals
+                - name: dind-etc
+                  mountPath: /etc
+                - name: dind-home
+                  mountPath: /home/runner
+            volumes:
+            - name: work
+              emptyDir: {}
+            - name: dind-externals
+              emptyDir: {}
+            - name: dind-sock
+              emptyDir: {}
+            - name: dind-etc
+              emptyDir: {}
+            - name: dind-home
+              emptyDir: {}
+            tolerations:
+              - key: "dedicated"
+                operator: "Equal"
+                value: "runner"
+                effect: "NoSchedule"
+            nodeSelector:
+              k3d-node-role: arc
   destination:
     server: https://kubernetes.default.svc
     namespace: arc-runners

@@ -9,7 +9,8 @@ spec:
       repoURL: 'https://github.com/air-hand/k8s-playground.git'
       revision: $CURRENT_BRANCH
       directories:
-        - path: 'apps/*'
+        - path: 'apps/secret-operator'
+        - path: 'apps/arc'
   template:
     metadata:
       name: 'app-{{path.basename}}'
